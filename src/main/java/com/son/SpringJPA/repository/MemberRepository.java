@@ -32,9 +32,24 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      Named Query 은 사실 잘 사용이 잘 안된다
      하지만 이런 장점이?
         em.createQuery 의 쿼리문은 오타가 있어도 실행에 문제가 없다 하지만 런타임 중 문제가 생길 것이다
-        하지만 namedQuery는 컴파일 할 때 쿼리문을 파싱하여 문법오류를 찾아 에러를 발생시킨다
+        하지만 namedQuery는 컴파일 할 때 쿼리문을 파싱하여 문법 오류를 찾아 에러를 발생시킨다
      */
     @Query(name = "Member.findByUsername")
     List<Member> findByUsername(@Param("username") String username);
+
+    /*
+     Data JPA + Named Query의 장점
+     왜?
+     1) 쿼리 조건에 맞춘 메서드 이름 정의 -> 조건이 많아지면 많아질수록 메서드 이름이 길어진다..
+        그렇다고 JpaRepository를 상속받는 구현체를 생성할 수도 없음.. 왜? 오버라이드 해야하는 메서드가 너무 많다!! Data JPA 없이 짜는거랑 다를 바 없음
+        그래도 조건이 별로 없을 때는 아주 생산적
+     2) Named Query
+        컴파일 타임에 쿼리문의 오타를 잡을 수 있다는 강점이 있지만 엔티티에 쿼리가 덕지덕지 붙어있음..
+
+     -> Data JPA가 제공하는 @Query에 원하는 jpql문을 설계, 컴파일 시점에 쿼리문의 문법 오류도 잡고
+        복잡한 조건에도 메서드명을 간결하게 정의함으로써 생산성, 코드 간결성 더욱 증가 ㅎㅎ
+     */
+    @Query("select m from Member m where m.username = :username and m.age = :age")
+    List<Member> findUser(@Param("username") String username, @Param("age") int age);
 
 }
