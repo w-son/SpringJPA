@@ -9,6 +9,10 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA는 기본적으로 파라미터가 없는 생성자를 사용해야할 수 있어야 한다
 @AllArgsConstructor
 @ToString(of = {"id", "username", "age"})
+@NamedQuery(
+        name="Member.findByUsername",
+        query="select m from Member m where m.username = :username"
+)
 public class Member {
 
     @Id @GeneratedValue

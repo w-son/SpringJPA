@@ -82,4 +82,15 @@ class MemberRepositoryTest {
         assertThat(result.size()).isEqualTo(1);
     }
 
+    @Test
+    public void testNamedQuery() throws Exception {
+        // given
+        Member member = new Member("memberA");
+        memberRepository.save(member);
+        // when
+        List<Member> members = memberRepository.findByUsername("memberA");
+        // then
+        assertThat(members.get(0)).isEqualTo(member);
+    }
+
 }
