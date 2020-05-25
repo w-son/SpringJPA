@@ -1,6 +1,8 @@
 package com.son.SpringJPA.repository;
 
 import com.son.SpringJPA.domain.Member;
+import com.son.SpringJPA.domain.Team;
+import com.son.SpringJPA.dto.MemberDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ class MemberRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private TeamRepository teamRepository;
 
     @Test
     public void 출력용() throws Exception {
@@ -104,6 +108,21 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findUser("AAA", 10);
         // then
         assertThat(result.get(0)).isEqualTo(m1);
+    }
+
+    @Test
+    public void findMemberDto() throws Exception {
+        // given
+        Member m1 = new Member("AAA", 10);
+        memberRepository.save(m1);
+        Team t1 = new Team("team1");
+        teamRepository.save(t1);
+        m1.setTeam(t1);
+
+        List<MemberDto> findMember = memberRepository.findMemberDto();
+        assertThat(findMember.get(0).getId()).isEqualTo(m1.getId());
+        assertThat(findMember.get(0).getUsername()).isEqualTo(m1.getUsername());
+        assertThat(findMember.get(0).getTeamName()).isEqualTo(t1.getName());
     }
 
 }
