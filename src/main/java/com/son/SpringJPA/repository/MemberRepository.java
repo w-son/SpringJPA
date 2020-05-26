@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
@@ -66,5 +67,20 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // List 파라미터로 in 쿼리문 작성하기
     @Query("select m from Member m where m.username in :names")
     List<Member> findByNames(@Param("names") List<String> names);
+
+    /*
+     여러가지 반환 타입
+     반환 값이 없는 경우
+     1) 빈 리스트를 리턴한다
+     2) 원래 JPA는 NoResultException을 발생시키지만 Data JPA는 try catch 후에 null 이 리턴된다
+        -> 문제가 될 수 있음
+     3) 2번 문제를 해결하기 위해서 java 8 에서 생긴 것이 Optional
+        Optional에 여러개의 값이 반환되어서 들어가게 된다면 어떻게 될까
+        -> NonUniqueResultException
+     */
+    List<Member> findListByUsername(String username);
+    Member findMemberByUsername(String username);
+    Optional<Member> findOptionalByUsername(String username);
+
 
 }

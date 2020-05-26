@@ -125,4 +125,19 @@ class MemberRepositoryTest {
         assertThat(findMember.get(0).getTeamName()).isEqualTo(t1.getName());
     }
 
+    @Test
+    public void TypeChecking() throws Exception {
+        // given
+        Member member = new Member("AAA", 10);
+        memberRepository.save(member);
+        // when
+        List<Member> find1 = memberRepository.findListByUsername("AAA");
+        Member find2 = memberRepository.findMemberByUsername("AAA");
+        Optional<Member> find3 = memberRepository.findOptionalByUsername("AAA");
+        // then
+        assertThat(find1.get(0)).isEqualTo(member);
+        assertThat(find2).isEqualTo(member);
+        assertThat(find3.get()).isEqualTo(member);
+    }
+
 }
