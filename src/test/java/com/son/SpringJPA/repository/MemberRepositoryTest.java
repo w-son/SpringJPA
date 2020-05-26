@@ -3,13 +3,21 @@ package com.son.SpringJPA.repository;
 import com.son.SpringJPA.domain.Member;
 import com.son.SpringJPA.domain.Team;
 import com.son.SpringJPA.dto.MemberDto;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +33,12 @@ class MemberRepositoryTest {
     private MemberRepository memberRepository;
     @Autowired
     private TeamRepository teamRepository;
+
+    @BeforeEach
+    public void setUp() {
+        memberRepository.deleteAll();
+        teamRepository.deleteAll();
+    }
 
     @Test
     public void 출력용() throws Exception {
@@ -138,6 +152,37 @@ class MemberRepositoryTest {
         assertThat(find1.get(0)).isEqualTo(member);
         assertThat(find2).isEqualTo(member);
         assertThat(find3.get()).isEqualTo(member);
+    }
+
+    @Test
+    public void testPaging() throws Exception {
+        // given
+        generateMember(10);
+
+        // Pageable의 구현체 PageRequest
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.ASC, "username"));
+        Page<Member> pagedMembers = memberRepository.findByAge(10, pageRequest);
+        Page<MemberDto> mappedMembers = pagedMembers.map(m -> new MemberDto(m.getId(), m.getUsername(), null));
+
+        List<MemberDto> members = mappedMembers.getContent();
+        long count = pagedMembers.getTotalElements();
+
+        // then
+        for(MemberDto m : members) {
+            System.out.println(m.getUsername());
+        }
+        assertThat(members.size()).isEqualTo(3);
+        assertThat(count).isEqualTo(10);
+        assertThat(pagedMembers.getNumber()).isEqualTo(0);
+        assertThat(pagedMembers.isFirst()).isTrue();
+        assertThat(pagedMembers.hasNext()).isTrue();
+    }
+
+    public void generateMember(int n) {
+        for(int i=0; i<n; i++) {
+            Member member = new Member(Integer.toString(i) + "번째 멤버", 10);
+            memberRepository.save(member);
+        }
     }
 
 }

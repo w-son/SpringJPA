@@ -2,6 +2,8 @@ package com.son.SpringJPA.repository;
 
 import com.son.SpringJPA.domain.Member;
 import com.son.SpringJPA.dto.MemberDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -82,5 +84,29 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Member findMemberByUsername(String username);
     Optional<Member> findOptionalByUsername(String username);
 
+    /*
+     페이징 쿼리
+     리턴되는 페이지에 age에 해당하는 전체 Member가 리턴되고
+     여기서 getContent를 하면 페이징 조건에 맞는 객체들을 리스트 형태로 가져올 수 있다
+     쉽게 얻을 수 있는 것
+     1) getTotalElements : 조건에 알맞는 객체의 개수
+     2) getContent : 페이지 조건으로 필터된 객체의 리스트
+     3) getNumber : 현재 페이지의 번호
+     4) getTotalPages : 페이지의 개수
+     5) isFirst, isLast, hasNext 등등
+     TODO 페이지 인터페이스는 어떤 구현체로 리턴 받을까? JpaRepository가 상속받는 PagingAndSortingRepository의 구현체가 무엇을 리턴하는지 알고 싶다
+
+     countQuery 분리
+     왜?
+     페이징을 통해서 left outer join 되는 경우를 가정
+     페이지의 데이터를 조회하는 방식으로는 적합하지만
+     데이터의 전체 개수를 구하는 경우에는 굳이 join해서 가져올 필요가 없음 .. 이건 왜? 모른다면 left outer join 다시 공부
+
+     @Query 를 사용해서 countQuery에 해당하는 쿼리문을 따로 짤 수 있다
+     */
+
+    @Query(value = "select m from Member m left join m.team t",
+            countQuery = "select count(m.username) from Member m")
+    Page<Member> findByAge(int age, Pageable pageable);
 
 }
