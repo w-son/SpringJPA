@@ -5,6 +5,7 @@ import com.son.SpringJPA.dto.MemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -108,5 +109,21 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value = "select m from Member m left join m.team t",
             countQuery = "select count(m.username) from Member m")
     Page<Member> findByAge(int age, Pageable pageable);
+
+    /*
+     벌크형 수정 쿼리
+     @Modifying 이 있어야 .executeUpdate와 같은 기능을 수행할 수 있다
+     * 주의 : 영속성 컨텍스트에 반영하는 것이 아닌 데이터베이스에 바로 반영하는 것이다
+       따라서 같은 transaction 내에서 벌크 연산 후 조회(=같은 엔티티 매니저를 쓴다는 말)를 할 시에는 다음과 같은 과정을 거쳐야 함
+       1) em.flush() = 영속성 캐시에 아직 DB에 반영되지 않은 내용이 있다면 반영시킨다
+       2) em.clear() = 이후에 엔티티 조회 시 (이미 캐시에 있는 내용이면 캐시의 내용을 불러오므로) 벌크가 반영된 새 엔티티를 불러오기 위해 비워준다
+
+       위 과정을 수행 후 벌크연산을 수행한 엔티티를 조회해야 정상적인 조회가 이루어진다
+       위 과정을 Spring Data JPA 가 해줌 ㅋㅋ
+       = @Modifying(clearAutomarically = true)
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
 
 }

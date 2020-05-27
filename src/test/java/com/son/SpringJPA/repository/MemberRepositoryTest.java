@@ -17,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +35,8 @@ class MemberRepositoryTest {
     private MemberRepository memberRepository;
     @Autowired
     private TeamRepository teamRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     @BeforeEach
     public void setUp() {
@@ -176,6 +180,23 @@ class MemberRepositoryTest {
         assertThat(pagedMembers.getNumber()).isEqualTo(0);
         assertThat(pagedMembers.isFirst()).isTrue();
         assertThat(pagedMembers.hasNext()).isTrue();
+    }
+
+    @Test
+    public void testBulkUpdate() throws Exception {
+        // given
+        generateMember(5);
+        // when
+        int count = memberRepository.bulkAgePlus(10);
+        em.flush();
+        em.clear();
+
+        List<Member> result = memberRepository.findByUsername("0번째 멤버");
+        Member findMember = result.get(0);
+        System.out.println(findMember.getAge());
+
+        // then
+        assertThat(count).isEqualTo(5);
     }
 
     public void generateMember(int n) {

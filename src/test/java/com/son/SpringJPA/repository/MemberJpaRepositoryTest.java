@@ -104,6 +104,16 @@ class MemberJpaRepositoryTest {
         assertThat(count).isEqualTo(10);
     }
 
+    @Test
+    public void testBulkUpdate() throws Exception {
+        // given
+        generateMember(5);
+        // when
+        int count = memberJpaRepository.bulkAgePlus(10);
+        // then
+        assertThat(count).isEqualTo(5);
+    }
+
     public void generateMember(int n) {
         for(int i=0; i<n; i++) {
             Member member = new Member(Integer.toString(i) + "번째 멤버", 10);
