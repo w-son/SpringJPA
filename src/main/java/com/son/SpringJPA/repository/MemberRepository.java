@@ -4,6 +4,7 @@ import com.son.SpringJPA.domain.Member;
 import com.son.SpringJPA.dto.MemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -125,5 +126,30 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    /*
+     fetch join, paging을 통한 in Query 다시 정리해보기
+
+     1) fetch join
+     일대 다, 다대 일 관계에서 일(Team) 쪽에 mapped by => 다(Member) 쪽이 관계의 주인이자 LAZY fetch가 적용이 된다
+     LAZY fetch 활용시 EAGER과는 다르게 매핑되는 객체가 프록시 타입의 빈 객체로 초기화 된다
+     이를 조회하려고 할 시에(get 메서드를 활용하는 것이 일반적) 추가적인 쿼리가 나간다
+     * 문제는, LAZY 초기화 후에 모든 프록시객체에 대해 이런 쿼리문을 날린다면 비요율적일 것 즉 N + 1 문제가 발생한다
+     ==> join fetch 를 통해서 프록시 객체를 한꺼번에 조회
+     ==> Spring Data JPA에서는 Entity Graph를 제공
+
+     2) in Query
+     다 입장에서 일을 호출할때는 join fetch가 적절하지만... 일 입장에서 다를 join fetch 할 경우에는 어떨까?
+     A와 연관되어 있는 1, 2를 join fetch 한다고 가정하였을 때
+     일 인 A를 기점으로 join fetch를 하게 된다면
+     (A, 1), (A, 2) 식으로 A가 다 의 횟수만큼 중복되어 반횐되는 결과가 나올 것이다
+     이 문제를 해결하기 위해 in Query를 사용하게 된다
+     */
+    @Query("select m from Member m left join fetch m.team")
+    List<Member> findMemberByJoinFetch();
+
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
 
 }
