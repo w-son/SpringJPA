@@ -226,6 +226,19 @@ class MemberRepositoryTest {
         }
     }
 
+    @Test
+    public void queryHint() throws Exception {
+        // given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        // when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+        em.flush(); // 변경 감지
+    }
+
     public void generateMember(int n) {
         for(int i=0; i<n; i++) {
             Member member = new Member(Integer.toString(i) + "번째 멤버", 10);
