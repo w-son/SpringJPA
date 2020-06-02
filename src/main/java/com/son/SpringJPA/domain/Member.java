@@ -17,7 +17,7 @@ import javax.persistence.*;
         name = "Member.all",
         attributeNodes = @NamedAttributeNode("team")
 )
-public class Member extends JpaBaseEntity {
+public class Member extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "member_id") // 데이터베이스에서 FK 매핑할 때 쓸 것
