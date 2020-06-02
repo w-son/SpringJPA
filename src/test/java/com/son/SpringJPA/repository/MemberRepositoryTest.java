@@ -239,6 +239,12 @@ class MemberRepositoryTest {
         em.flush(); // 변경 감지
     }
 
+    @Test
+    public void customRepo() throws Exception {
+        // given
+        List<Member> members = memberRepository.findMemberCustom();
+    }
+
     public void generateMember(int n) {
         for(int i=0; i<n; i++) {
             Member member = new Member(Integer.toString(i) + "번째 멤버", 10);
