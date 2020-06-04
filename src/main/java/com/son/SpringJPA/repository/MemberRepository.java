@@ -97,6 +97,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      4) getTotalPages : 페이지의 개수
      5) isFirst, isLast, hasNext 등등
      TODO 페이지 인터페이스는 어떤 구현체로 리턴 받을까? JpaRepository가 상속받는 PagingAndSortingRepository의 구현체가 무엇을 리턴하는지 알고 싶다
+     -> JpaRepository의 구현체인 SimpleJpaRepository를 보면 확인할 수 있다 Page<>의 구현체는 PageImpl<>
 
      countQuery 분리
      왜?
