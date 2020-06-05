@@ -162,4 +162,23 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByUsername(String username);
 
+    /*
+     기존의 쿼리는 엔티티 단위로 조회를 하게 된다
+     프로젝션 단위를 속성값 단위로 하고 싶을 때
+     JpaRepository를 상속받은 Repository에서 반환 리스트 타입에 이 인터페이스를 집어 넣으면 된다
+
+     스프링 데이터 JPA가 이에 대한 구현체를 만들어서 리턴해준다
+
+     + 오픈 프로젝션(spel 활용)을 통해서
+     엔티티를 가져온 다음에 원하는 속성끼리 조합하여 결과를 만들고 리턴할 수 있다
+
+     GenericType를 사용해서 고정된 조건에 대해 원하는 반환타입을 유동적으로 사용할 수 있다
+     + NestedClosedProjection을 보면 연관관계 매핑되어 있는 엔티티의 속성까지 left outer join으로 가져올 수 있다
+     */
+    List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
+
+    List<UsernameOnlyDto> findProjectionsDtoByUsername(@Param("username") String username);
+
+    <T> List<T> findProjectionsGenericByUsername(@Param("username") String username, Class<T> type);
+
 }

@@ -245,6 +245,36 @@ class MemberRepositoryTest {
         List<Member> members = memberRepository.findMemberCustom();
     }
 
+    @Test
+    public void projection() throws Exception {
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        List<UsernameOnly> r1 = memberRepository.findProjectionsByUsername("m1");
+        for(UsernameOnly username : r1) {
+            System.out.println("UsernameOnly = " + username.getUsername());
+        }
+
+        List<UsernameOnlyDto> r2 = memberRepository.findProjectionsDtoByUsername("m1");
+        for(UsernameOnlyDto dto : r2) {
+            System.out.println("UsernameOnlyDto = " + dto.getUsername());
+        }
+
+        List<NestedClosedProjection> r3 = memberRepository.findProjectionsGenericByUsername("m1", NestedClosedProjection.class);
+        for(NestedClosedProjection g : r3) {
+            System.out.println("username = " + g.getUsername());
+            System.out.println("teamname = " + g.getTeam().getName());
+        }
+    }
+
     public void generateMember(int n) {
         for(int i=0; i<n; i++) {
             Member member = new Member(Integer.toString(i) + "번째 멤버", 10);
